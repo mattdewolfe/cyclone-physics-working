@@ -56,8 +56,8 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ballistic</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\mdewolfe\cyclone-physics\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\mdewolfe\cyclone-physics\lib\win32;C:\Users\mdewolfe\cyclone-physics\build\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)..\..\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\..\lib\win32;$(ProjectDir)..\build\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\Users\mdewolfe\cyclone-physics\include;$(IncludePath)</IncludePath>

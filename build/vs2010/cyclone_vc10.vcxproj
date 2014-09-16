@@ -54,8 +54,8 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cyclone_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\mdewolfe\cyclone-physics\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\mdewolfe\cyclone-physics\lib\win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)..\..\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\..\lib\win32\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\Users\mdewolfe\cyclone-physics\include;$(IncludePath)</IncludePath>
