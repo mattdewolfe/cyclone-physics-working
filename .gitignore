@@ -23,3 +23,7 @@ bin/osx64/*
 !default.xcworkspace
 xcuserdata
 *.moved-aside
+
+# Directories to be rebuilt with project
+build/vs2010/tmp/Debug/*
+build/tmp/*/Debug/*
