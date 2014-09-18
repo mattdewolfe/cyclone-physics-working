@@ -276,7 +276,7 @@ namespace cyclone {
          * If the pair is not registered, this method will have
          * no effect.
          */
-        void remove(Particle* particle, ParticleForceGenerator *fg);
+        void remove(Particle* particle);
 
         /**
          * Clears all registrations from the registry. This will

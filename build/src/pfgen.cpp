@@ -32,6 +32,23 @@ void ParticleForceRegistry::add(Particle* particle, ParticleForceGenerator *fg)
     registrations.push_back(registration);
 }
 
+void ParticleForceRegistry::remove(Particle* particle)
+{
+	Registry::iterator it = registrations.begin();
+
+	for (it; it != registrations.end(); ++it)
+	{
+		ParticleForceRegistry::ParticleForceRegistration registration = (*it);
+		if (registration.particle == particle)
+		{
+			registrations.erase(it);
+			break;
+		}
+	}
+
+}
+
+
 ParticleGravity::ParticleGravity(const Vector3& gravity)
 : gravity(gravity)
 {
