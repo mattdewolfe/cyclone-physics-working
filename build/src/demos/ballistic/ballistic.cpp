@@ -75,11 +75,18 @@ class BallisticDemo : public Application
 
     /** Dispatches a round. */
     void fire();
+	// GAME3002 - Stuff we added, force registry for tracking all forces
+	cyclone::ParticleForceRegistry m_ParticleForceRegistry;
+	// Gravity - should be added shots we want effected by gravity
+	cyclone::ParticleGravity m_GravityForce;
+	// Spring force - added to artillery shot when fired
+	cyclone::ParticleFakeSpring *m_FakeSpringForce;
 
 public:
     /** Creates a new demo object. */
     BallisticDemo();
 
+	~BallisticDemo();
     /** Returns the window title for the demo. */
     virtual const char* getTitle();
 
@@ -93,13 +100,18 @@ public:
     virtual void mouse(int button, int state, int x, int y);
 
     /** Handle a keypress. */
-    virtual void key(unsigned char key);
+   virtual void key(unsigned char key);
 };
 
 // Method definitions
 BallisticDemo::BallisticDemo()
 : currentShotType(LASER)
 {
+	// GAME3002 - Create some gravity
+	m_GravityForce.SetGravity(cyclone::Vector3::HIGH_GRAVITY);
+	// GAME3002 - Create a fake spring force
+	m_FakeSpringForce = new cyclone::ParticleFakeSpring(new cyclone::Vector3(0.0, 1.5f, 0.0f), 6.5f, 0.3f);
+
     // Make all shots unused
     for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
     {
@@ -130,21 +142,19 @@ void BallisticDemo::fire()
     case PISTOL:
         shot->particle.setMass(2.0f); // 2.0kg
         shot->particle.setVelocity(0.0f, 0.0f, 35.0f); // 35m/s
-        shot->particle.setAcceleration(0.0f, -1.0f, 0.0f);
         shot->particle.setDamping(0.99f);
         break;
 
     case ARTILLERY:
         shot->particle.setMass(200.0f); // 200.0kg
         shot->particle.setVelocity(0.0f, 30.0f, 40.0f); // 50m/s
-        shot->particle.setAcceleration(0.0f, -20.0f, 0.0f);
         shot->particle.setDamping(0.99f);
+		m_ParticleForceRegistry.add(&shot->particle, m_FakeSpringForce);
         break;
 
     case FIREBALL:
         shot->particle.setMass(1.0f); // 1.0kg - mostly blast damage
         shot->particle.setVelocity(0.0f, 0.0f, 10.0f); // 5m/s
-        shot->particle.setAcceleration(0.0f, 0.6f, 0.0f); // Floats up
         shot->particle.setDamping(0.9f);
         break;
 
@@ -153,16 +163,19 @@ void BallisticDemo::fire()
         // not a realistic laser beam!
         shot->particle.setMass(0.1f); // 0.1kg - almost no weight
         shot->particle.setVelocity(0.0f, 0.0f, 100.0f); // 100m/s
-        shot->particle.setAcceleration(0.0f, 0.0f, 0.0f); // No gravity
         shot->particle.setDamping(0.99f);
         break;
     }
 
+	if (currentShotType == PISTOL || currentShotType == ARTILLERY)
+	{
+		m_ParticleForceRegistry.add(&shot->particle, &m_GravityForce);
+	}
     // Set the data common to all particle types
     shot->particle.setPosition(0.0f, 1.5f, 0.0f);
     shot->startTime = TimingData::get().lastFrameTimestamp;
     shot->type = currentShotType;
-
+	
     // Clear the force accumulators
     shot->particle.clearAccumulator();
 }
@@ -172,6 +185,9 @@ void BallisticDemo::update()
     // Find the duration of the last frame in seconds
     float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
     if (duration <= 0.0f) return;
+
+	// GAME3002 - Call to update all forces in registry
+	m_ParticleForceRegistry.updateForces(duration);
 
     // Update the physics of each particle in turn
     for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
@@ -189,6 +205,10 @@ void BallisticDemo::update()
                 // We simply set the shot type to be unused, so the
                 // memory it occupies can be reused by another shot.
                 shot->type = UNUSED;
+				// GAME3002 - Added line to remove unused forces, else we get
+				// unpredictable behavior - altered to take in a force parameter as well
+				m_ParticleForceRegistry.remove(&shot->particle, &m_GravityForce);
+				m_ParticleForceRegistry.remove(&shot->particle, m_FakeSpringForce);
             }
         }
     }
@@ -272,4 +292,11 @@ void BallisticDemo::key(unsigned char key)
 Application* getApplication()
 {
     return new BallisticDemo();
+}
+
+// Destructor
+BallisticDemo::~BallisticDemo()
+{
+	if (m_FakeSpringForce)
+		delete m_FakeSpringForce;
 }

@@ -46,14 +46,18 @@ namespace cyclone {
     class ParticleGravity : public ParticleForceGenerator
     {
         /** Holds the acceleration due to gravity. */
-        Vector3 gravity;
+        Vector3 m_gravity;
 
     public:
 
         /** Creates the generator with the given acceleration. */
-        ParticleGravity(const Vector3 &gravity);
+		ParticleGravity();
+		ParticleGravity(const cyclone::Vector3 &gravity);
 
-        /** Applies the gravitational force to the given particle. */
+		void SetGravity(const cyclone::Vector3 &gravity) { m_gravity = gravity; }
+		Vector3 GetGravity() const { return m_gravity; }
+        
+		/** Applies the gravitational force to the given particle. */
         virtual void updateForce(Particle *particle, real duration);
     };
 
@@ -276,7 +280,8 @@ namespace cyclone {
          * If the pair is not registered, this method will have
          * no effect.
          */
-        void remove(Particle* particle);
+		// GAME3002 - Altered remove function to take a particle and a force
+		void remove(Particle* particle, ParticleForceGenerator *fg);
 
         /**
          * Clears all registrations from the registry. This will

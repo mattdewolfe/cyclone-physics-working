@@ -32,25 +32,29 @@ void ParticleForceRegistry::add(Particle* particle, ParticleForceGenerator *fg)
     registrations.push_back(registration);
 }
 
-void ParticleForceRegistry::remove(Particle* particle)
+// GAME3002 - remove registry written in class
+void ParticleForceRegistry::remove(Particle* particle, ParticleForceGenerator *fg)
 {
 	Registry::iterator it = registrations.begin();
 
+	// Iterate through the entire list, check for matching force and particle - delete if check
 	for (it; it != registrations.end(); ++it)
 	{
 		ParticleForceRegistry::ParticleForceRegistration registration = (*it);
-		if (registration.particle == particle)
+		if (registration.particle == particle && registration.fg == fg)
 		{
 			registrations.erase(it);
 			break;
 		}
 	}
-
 }
 
-
+ParticleGravity::ParticleGravity()
+{
+	m_gravity = cyclone::Vector3(0.0f, -0.0f, 0.0f);
+}
 ParticleGravity::ParticleGravity(const Vector3& gravity)
-: gravity(gravity)
+: m_gravity(gravity)
 {
 }
 
@@ -60,7 +64,7 @@ void ParticleGravity::updateForce(Particle* particle, real duration)
     if (!particle->hasFiniteMass()) return;
 
     // Apply the mass-scaled force to the particle
-    particle->addForce(gravity * particle->getMass());
+    particle->addForce(m_gravity * particle->getMass());
 }
 
 ParticleDrag::ParticleDrag(real k1, real k2)
