@@ -184,25 +184,9 @@ void BlobForceGenerator::updateForce(cyclone::Particle *particle,
         separation.z = 0.0f;
         cyclone::real distance = separation.magnitude();
 
-        if (distance < minNaturalDistance)
+		if (distance < BLOB_RADIUS*2)
         {
-            // Use a repulsion force.
-            distance = 1.0f - distance / minNaturalDistance;
-            particle->addForce(
-                separation.unit() * (1.0f - distance) * maxReplusion * -1.0f
-                );
-            joinCount++;
-        }
-        else if (distance > maxNaturalDistance && distance < maxDistance)
-        {
-            // Use an attraction force.
-            distance = 
-                (distance - maxNaturalDistance) / 
-                (maxDistance - maxNaturalDistance);
-            particle->addForce(
-                separation.unit() * distance * maxAttraction
-                );
-            joinCount++;
+			particle->addForce(separation.unit() * -20.0f);
         }
     }
 
