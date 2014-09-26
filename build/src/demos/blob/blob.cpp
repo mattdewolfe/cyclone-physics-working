@@ -21,6 +21,7 @@
 #define BLOB_COUNT 5
 #define PLATFORM_COUNT 10
 #define BLOB_RADIUS 0.4f
+#define BLOB_DIAMETER BLOB_RADIUS*BLOB_RADIUS
 
 
 /**
@@ -62,7 +63,7 @@ unsigned Platform::addContact(cyclone::ParticleContact *contact,
         if (projected <= 0)
         {
             // The blob is nearest to the start point
-            if (toParticle.squareMagnitude() < BLOB_RADIUS*BLOB_RADIUS)
+			if (toParticle.squareMagnitude() < BLOB_DIAMETER)
             {
                 // We have a collision
                 contact->contactNormal = toParticle.unit();
@@ -173,7 +174,7 @@ void BlobForceGenerator::updateForce(cyclone::Particle *particle,
                                       cyclone::real duration)
 {
     unsigned joinCount = 0;
-    for (unsigned i = 0; i < BLOB_COUNT; i++)
+   /* for (unsigned i = 0; i < BLOB_COUNT; i++)
     {
         // Don't attract yourself
         if (particles + i == particle) continue;
@@ -212,7 +213,7 @@ void BlobForceGenerator::updateForce(cyclone::Particle *particle,
         cyclone::real force = cyclone::real(joinCount / maxFloat) * floatHead;
         if (force > floatHead) force = floatHead;
         particle->addForce(cyclone::Vector3(0, force, 0));
-    }
+    }*/
 
 }
 
@@ -221,6 +222,8 @@ void BlobForceGenerator::updateForce(cyclone::Particle *particle,
  */
 class BlobDemo : public Application
 {
+	cyclone::CollisionSphere *blobColliders;
+	cyclone::RigidBody *blodies;
     cyclone::Particle *blobs;
 
     Platform *platforms;
@@ -264,18 +267,21 @@ world(PLATFORM_COUNT+BLOB_COUNT, PLATFORM_COUNT)
 {
     // Create the blob storage
     blobs = new cyclone::Particle[BLOB_COUNT];
-    cyclone::Random r;
+	blodies = new cyclone::RigidBody[BLOB_COUNT];
+	blobColliders = new cyclone::CollisionSphere[BLOB_COUNT];
+	
+	cyclone::Random r;
 
     // Create the force generator
     blobForceGenerator.particles = blobs;
-    blobForceGenerator.maxAttraction = 20.0f;
+	blobForceGenerator.maxAttraction = 20.0f;
     blobForceGenerator.maxReplusion = 10.0f;
     blobForceGenerator.minNaturalDistance = BLOB_RADIUS*0.75f;
     blobForceGenerator.maxNaturalDistance = BLOB_RADIUS*1.5f;
     blobForceGenerator.maxDistance = BLOB_RADIUS * 2.5f;
     blobForceGenerator.maxFloat = 2;
     blobForceGenerator.floatHead = 8.0f;
-    
+	
     // Create the platforms
     platforms = new Platform[PLATFORM_COUNT];
     for (unsigned i = 0; i < PLATFORM_COUNT; i++)
@@ -316,6 +322,12 @@ world(PLATFORM_COUNT+BLOB_COUNT, PLATFORM_COUNT)
         blobs[i].setAcceleration(cyclone::Vector3::GRAVITY * 0.4f);
         blobs[i].setMass(1.0f);
         blobs[i].clearAccumulator();
+
+		blodies[i].setPosition(blobs[i].getPosition());
+		blodies[i].setMass(blobs[i].getMass());
+
+		blobColliders[i].radius = BLOB_RADIUS;
+		blobColliders[i].body = &blodies[i];
 
         world.getParticles().push_back(blobs + i);
         world.getForceRegistry().add(blobs + i, &blobForceGenerator);
