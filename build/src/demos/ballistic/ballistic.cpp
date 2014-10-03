@@ -14,9 +14,11 @@
 #include <cyclone/cyclone.h>
 #include "../app.h"
 #include "../timing.h"
-
+// GAME3002 - Launcher class
+#include "Launcher.h"
 #include <stdio.h>
 
+#define NUM_LAUNCHERS 2
 /**
  * The main demo class definition.
  */
@@ -73,11 +75,14 @@ class BallisticDemo : public Application
     /** Holds the current shot type. */
     ShotType currentShotType;
 
+	// GAME3002 - Holds all the launchers on the screen
+	Launcher *launchers[NUM_LAUNCHERS];
+
     /** Dispatches a round. */
     void fire();
 	// GAME3002 - Stuff we added, force registry for tracking all forces
 	cyclone::ParticleForceRegistry m_ParticleForceRegistry;
-	// Gravity - should be added shots we want effected by gravity
+	// Gravity - should be added to shots we want effected by gravity
 	cyclone::ParticleGravity m_GravityForce;
 	// Spring force - added to artillery shot when fired
 	cyclone::ParticleFakeSpring *m_FakeSpringForce;
@@ -108,15 +113,22 @@ BallisticDemo::BallisticDemo()
 : currentShotType(LASER)
 {
 	// GAME3002 - Create some gravity
-	m_GravityForce.SetGravity(cyclone::Vector3::HIGH_GRAVITY);
-	// GAME3002 - Create a fake spring force
-	m_FakeSpringForce = new cyclone::ParticleFakeSpring(new cyclone::Vector3(0.0, 1.5f, 0.0f), 6.5f, 0.3f);
+	m_GravityForce.SetGravity(cyclone::Vector3::GRAVITY);
+	// GAME3002 - Create a fake spring force (TEMPORARILY zero'd out)
+	m_FakeSpringForce = new cyclone::ParticleFakeSpring(new cyclone::Vector3(0.0, 0.0f, 0.0f), 0.0f, 0.0f);
 
     // Make all shots unused
     for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
     {
         shot->type = UNUSED;
     }
+
+	// Game3002 - Create our launchers
+	for (int i = 0; i < NUM_LAUNCHERS; i++)
+	{
+		launchers[i] = new Launcher(0.0f, 1.0f, 125.0f*i);
+		launchers[i]->SetColour(cyclone::Vector3(0.0f, 0.75f*i, 0.25f));
+	}
 }
 
 const char* BallisticDemo::getTitle()
@@ -146,7 +158,7 @@ void BallisticDemo::fire()
         break;
 
     case ARTILLERY:
-        shot->particle.setMass(200.0f); // 200.0kg
+        shot->particle.setMass(125.0f); // 125.0kg
         shot->particle.setVelocity(0.0f, 30.0f, 40.0f); // 50m/s
         shot->particle.setDamping(0.99f);
 		m_ParticleForceRegistry.add(&shot->particle, m_FakeSpringForce);
@@ -223,18 +235,11 @@ void BallisticDemo::display()
     glLoadIdentity();
     gluLookAt(-25.0, 8.0, 5.0,  0.0, 5.0, 22.0,  0.0, 1.0, 0.0);
 
-    // Draw a sphere at the firing point, and add a shadow projected
-    // onto the ground plane.
-    glColor3f(0.0f, 0.0f, 0.0f);
-    glPushMatrix();
-    glTranslatef(0.0f, 1.5f, 0.0f);
-    glutSolidSphere(0.1f, 5, 5);
-    glTranslatef(0.0f, -1.5f, 0.0f);
-    glColor3f(0.75f, 0.75f, 0.75f);
-    glScalef(1.0f, 0.1f, 1.0f);
-    glutSolidSphere(0.1f, 5, 5);
-    glPopMatrix();
-
+	// Game3002 - Draw our launchers to the screen
+	for (int i = 0; i < NUM_LAUNCHERS; i++)
+	{
+		launchers[i]->Draw();
+	}
     // Draw some scale lines
     glColor3f(0.75f, 0.75f, 0.75f);
     glBegin(GL_LINES);
