@@ -602,11 +602,39 @@ namespace cyclone {
             k += q.k * ((real)0.5);
         }
 
-        void rotateByVector(const Vector3& vector)
+        void rotateByVector(const Vector3& vector, real angle = 0)
         {
-            Quaternion q(0, vector.x, vector.y, vector.z);
+            Quaternion q(angle, vector.x, vector.y, vector.z);
             (*this) *= q;
         }
+
+		void rotateByAngle(real angle)
+        {
+            Quaternion q(angle, this->i,this->j,this->k);
+            (*this) *= q;
+        }
+
+		inline void toAngleAxis(real &angle, Vector3 &axis) const
+		{
+			const real scale = sqrt(i*i + j*j + k*k);
+
+			if ( fabs(scale) < DBL_EPSILON || r > 1.0 || r < -1.0)
+			{
+				angle = 0.0;
+				axis.x = 0.0;
+				axis.y = 1.0;
+				axis.z = 0.0;
+			}
+			else
+			{
+				const real invscale = 1.0/scale;
+				angle = 2.0 * acos(r);
+				axis.x = i * invscale;
+				axis.y = j * invscale;
+				axis.z = k * invscale;
+			}
+		}
+
     };
 
     /**
