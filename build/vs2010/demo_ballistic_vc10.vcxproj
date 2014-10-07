@@ -121,6 +121,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\demos\app.h" />
     <ClInclude Include="..\src\demos\timing.h" />
+    <ClInclude Include="AmmoRound.h" />
     <ClInclude Include="Launcher.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

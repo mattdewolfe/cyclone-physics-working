@@ -26,7 +26,29 @@ Launcher::~Launcher(void)
 // Sets up collision body
 void Launcher::SetupCollider()
 {
+    body->setOrientation(1,0,0,0);
+    body->setVelocity(0,0,0);
+    body->setRotation(cyclone::Vector3(0,0,0));
 
+	halfSize = cyclone::Vector3(1,1,1);
+
+    cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
+    body->setMass(mass);
+
+    cyclone::Matrix3 tensor;
+    tensor.setBlockInertiaTensor(halfSize, mass);
+    body->setInertiaTensor(tensor);
+
+    body->setLinearDamping(0.95f);
+    body->setAngularDamping(0.8f);
+    body->clearAccumulators();
+   // body->setAcceleration(0,-10.0f,0);
+
+    body->setCanSleep(false);
+    body->setAwake();
+
+    body->calculateDerivedData();
+    calculateInternals();
 }
 
 // Visuals for launcher

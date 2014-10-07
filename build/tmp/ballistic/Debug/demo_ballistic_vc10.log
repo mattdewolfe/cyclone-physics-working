@@ -1,17 +1,17 @@
-﻿Build started 10/3/2014 9:56:45 AM.
-     1>Project "C:\Users\mdewolfe\cyclone-physics-working\build\vs2010\demo_ballistic_vc10.vcxproj" on node 2 (Build target(s)).
+﻿Build started 10/7/2014 9:44:25 AM.
+     1>Project "H:\cyclone-physics-working\build\vs2010\demo_ballistic_vc10.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I..\include /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _VC80_UPGRADE=0x0710 /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"..\tmp\ballistic\Debug\\" /Fd"..\tmp\ballistic\Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Launcher.cpp
-         Launcher.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I..\include /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _VC80_UPGRADE=0x0710 /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"..\tmp\ballistic\Debug\\" /Fd"..\tmp\ballistic\Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt ..\src\demos\ballistic\ballistic.cpp
+         ballistic.cpp
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"..\bin\ballistic_d.exe" /INCREMENTAL /NOLOGO /LIBPATH:../lib cyclone_d.lib opengl32.lib glu32.lib glut32.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"..\tmp\ballistic\Debug/ballistic.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"..\bin\ballistic_d.lib" /MACHINE:X86 /SAFESEH:NO ..\tmp\ballistic\Debug\ballistic.obj
          ..\tmp\ballistic\Debug\app.obj
          ..\tmp\ballistic\Debug\timing.obj
          ..\tmp\ballistic\Debug\Launcher.obj
          ..\tmp\ballistic\Debug\main1.obj
-         demo_ballistic_vc10.vcxproj -> C:\Users\mdewolfe\cyclone-physics-working\build\vs2010\..\bin\ballistic_d.exe
-     1>Done Building Project "C:\Users\mdewolfe\cyclone-physics-working\build\vs2010\demo_ballistic_vc10.vcxproj" (Build target(s)).
+         demo_ballistic_vc10.vcxproj -> H:\cyclone-physics-working\build\vs2010\..\bin\ballistic_d.exe
+     1>Done Building Project "H:\cyclone-physics-working\build\vs2010\demo_ballistic_vc10.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.67
+Time Elapsed 00:00:04.20

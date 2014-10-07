@@ -16,52 +16,16 @@
 #include "../timing.h"
 // GAME3002 - Launcher class
 #include "Launcher.h"
+#include "AmmoRound.h"
 #include <stdio.h>
 
 #define NUM_LAUNCHERS 2
 /**
  * The main demo class definition.
  */
+
 class BallisticDemo : public Application
 {
-    enum ShotType
-    {
-        UNUSED = 0,
-        PISTOL,
-        ARTILLERY,
-        FIREBALL,
-        LASER
-    };
-
-    /**
-     * Holds a single ammunition round record.
-     */
-    struct AmmoRound
-    {
-        cyclone::Particle particle;
-        ShotType type;
-        unsigned startTime;
-
-        /** Draws the round. */
-        void render()
-        {
-            cyclone::Vector3 position;
-            particle.getPosition(&position);
-
-            glColor3f(0, 0, 0);
-            glPushMatrix();
-            glTranslatef(position.x, position.y, position.z);
-            glutSolidSphere(0.3f, 5, 4);
-            glPopMatrix();
-
-            glColor3f(0.75, 0.75, 0.75);
-            glPushMatrix();
-            glTranslatef(position.x, 0, position.z);
-            glScalef(1.0f, 0.1f, 1.0f);
-            glutSolidSphere(0.6f, 5, 4);
-            glPopMatrix();
-        }
-    };
 
     /**
      * Holds the maximum number of  rounds that can be
@@ -126,7 +90,7 @@ BallisticDemo::BallisticDemo()
 	// Game3002 - Create our launchers
 	for (int i = 0; i < NUM_LAUNCHERS; i++)
 	{
-		launchers[i] = new Launcher(0.0f, 1.0f, 125.0f*i);
+		launchers[i] = new Launcher(5.0f, 1.0f, 1.0f, 80.0f*i);
 		launchers[i]->SetColour(cyclone::Vector3(0.0f, 0.75f*i, 0.25f));
 	}
 }
@@ -148,48 +112,9 @@ void BallisticDemo::fire()
     // If we didn't find a round, then exit - we can't fire.
     if (shot >= ammo+ammoRounds) return;
 
-    // Set the properties of the particle
-    switch(currentShotType)
-    {
-    case PISTOL:
-        shot->particle.setMass(2.0f); // 2.0kg
-        shot->particle.setVelocity(0.0f, 0.0f, 35.0f); // 35m/s
-        shot->particle.setDamping(0.99f);
-        break;
+    // Set the shot
+    shot->setState(currentShotType);
 
-    case ARTILLERY:
-        shot->particle.setMass(125.0f); // 125.0kg
-        shot->particle.setVelocity(0.0f, 30.0f, 40.0f); // 50m/s
-        shot->particle.setDamping(0.99f);
-		m_ParticleForceRegistry.add(&shot->particle, m_FakeSpringForce);
-        break;
-
-    case FIREBALL:
-        shot->particle.setMass(1.0f); // 1.0kg - mostly blast damage
-        shot->particle.setVelocity(0.0f, 0.0f, 10.0f); // 5m/s
-        shot->particle.setDamping(0.9f);
-        break;
-
-    case LASER:
-        // Note that this is the kind of laser bolt seen in films,
-        // not a realistic laser beam!
-        shot->particle.setMass(0.1f); // 0.1kg - almost no weight
-        shot->particle.setVelocity(0.0f, 0.0f, 100.0f); // 100m/s
-        shot->particle.setDamping(0.99f);
-        break;
-    }
-
-	if (currentShotType == PISTOL || currentShotType == ARTILLERY)
-	{
-		m_ParticleForceRegistry.add(&shot->particle, &m_GravityForce);
-	}
-    // Set the data common to all particle types
-    shot->particle.setPosition(0.0f, 1.5f, 0.0f);
-    shot->startTime = TimingData::get().lastFrameTimestamp;
-    shot->type = currentShotType;
-	
-    // Clear the force accumulators
-    shot->particle.clearAccumulator();
 }
 
 void BallisticDemo::update()
@@ -197,30 +122,28 @@ void BallisticDemo::update()
     // Find the duration of the last frame in seconds
     float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
     if (duration <= 0.0f) return;
-
-	// GAME3002 - Call to update all forces in registry
-	m_ParticleForceRegistry.updateForces(duration);
-
+	for (int i = 0; i < NUM_LAUNCHERS; i++)
+	{
+		launchers[i]->body->integrate(duration);
+		launchers[i]->calculateInternals();
+	}
     // Update the physics of each particle in turn
     for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
     {
         if (shot->type != UNUSED)
         {
             // Run the physics
-            shot->particle.integrate(duration);
+            shot->body->integrate(duration);
+			shot->calculateInternals();
 
             // Check if the particle is now invalid
-            if (shot->particle.getPosition().y < 0.0f ||
+            if (shot->body->getPosition().y < 0.0f ||
                 shot->startTime+5000 < TimingData::get().lastFrameTimestamp ||
-                shot->particle.getPosition().z > 200.0f)
+                shot->body->getPosition().z > 200.0f)
             {
                 // We simply set the shot type to be unused, so the
                 // memory it occupies can be reused by another shot.
                 shot->type = UNUSED;
-				// GAME3002 - Added line to remove unused forces, else we get
-				// unpredictable behavior - altered to take in a force parameter as well
-				m_ParticleForceRegistry.remove(&shot->particle, &m_GravityForce);
-				m_ParticleForceRegistry.remove(&shot->particle, m_FakeSpringForce);
             }
         }
     }

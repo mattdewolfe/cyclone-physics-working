@@ -13,9 +13,10 @@ private:
 	float shotPower;
 	// Called inside constructor to setup physics collider on launcher
 	void SetupCollider();
+	// Store halfsize value, used for inertia
+	cyclone::Vector3 halfSize;
 
 public:
-
 	Launcher(float _radius, float _x = 0, float _y = 0, float _z = 0);
 	Launcher(float _radius, cyclone::Vector3 _pos);
 	~Launcher(void);
