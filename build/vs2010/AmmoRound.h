@@ -45,9 +45,9 @@ public:
     }
 
     /** Sets the box to a specific location. */
-    void setState(ShotType shotType)
+    void setState(ShotType _shotType, cyclone::Vector3 _position)
     {
-        type = shotType;
+        type = _shotType;
 
         // Set the properties of the particle
         switch(type)
@@ -96,7 +96,7 @@ public:
         body->setInertiaTensor(tensor);
 
         // Set the data common to all particle types
-        body->setPosition(0.0f, 1.5f, 0.0f);
+        body->setPosition(_position);
         startTime = TimingData::get().lastFrameTimestamp;
 
         // Clear the force accumulators

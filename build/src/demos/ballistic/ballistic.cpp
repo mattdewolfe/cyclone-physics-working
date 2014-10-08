@@ -24,7 +24,7 @@
  * The main demo class definition.
  */
 
-class BallisticDemo : public Application
+class BallisticDemo : public RigidBodyApplication
 {
 
     /**
@@ -59,8 +59,14 @@ public:
     /** Returns the window title for the demo. */
     virtual const char* getTitle();
 
-    /** Update the particle positions. */
-    virtual void update();
+    /** Resets the position of all the boxes and primes the explosion. */
+    virtual void reset();
+
+    /** Build the contacts for the current situation. */
+    virtual void generateContacts();
+
+    /** Processes the objects in the simulation forward in time. */
+    virtual void updateObjects(cyclone::real duration);
 
     /** Display the particle positions. */
     virtual void display();
@@ -95,6 +101,32 @@ BallisticDemo::BallisticDemo()
 	}
 }
 
+void BallisticDemo::generateContacts()
+{
+    // Create the ground plane data
+    cyclone::CollisionPlane plane;
+    plane.direction = cyclone::Vector3(0,1,0);
+    plane.offset = 0;
+
+    // Set up the collision data structure
+    cData.reset(maxContacts);
+    cData.friction = (cyclone::real)0.9;
+    cData.restitution = (cyclone::real)0.1;
+    cData.tolerance = (cyclone::real)0.1;
+
+    // Check for collisions with each shot
+    for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
+    {
+        if (shot->type != UNUSED)
+        {
+            if (!cData.hasMoreContacts()) return;
+               shot->type = UNUSED;            
+        }
+    }
+    // NB We aren't checking box-box collisions.
+}
+
+
 const char* BallisticDemo::getTitle()
 {
     return "Cyclone > Ballistic Demo";
@@ -112,15 +144,24 @@ void BallisticDemo::fire()
     // If we didn't find a round, then exit - we can't fire.
     if (shot >= ammo+ammoRounds) return;
 
-    // Set the shot
-    shot->setState(currentShotType);
+    // Else, setup the shot
+    shot->setState(currentShotType, 
+		(launchers[0]->body->getPosition() + cyclone::Vector3(0.0, 0.0, 2.0f))
+		);
 
 }
 
-void BallisticDemo::update()
+void BallisticDemo::reset()
 {
-    // Find the duration of the last frame in seconds
-    float duration = (float)TimingData::get().lastFrameDuration * 0.001f;
+    // Make all shots unused
+    for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
+    {
+        shot->type = UNUSED;
+    }
+}
+
+void BallisticDemo::updateObjects(cyclone::real duration)
+{
     if (duration <= 0.0f) return;
 	for (int i = 0; i < NUM_LAUNCHERS; i++)
 	{
@@ -137,7 +178,7 @@ void BallisticDemo::update()
 			shot->calculateInternals();
 
             // Check if the particle is now invalid
-            if (shot->body->getPosition().y < 0.0f ||
+            if (shot->body->getPosition().y < -1.0f ||
                 shot->startTime+5000 < TimingData::get().lastFrameTimestamp ||
                 shot->body->getPosition().z > 200.0f)
             {
@@ -213,6 +254,15 @@ void BallisticDemo::key(unsigned char key)
     }
 }
 
+
+
+// Destructor
+BallisticDemo::~BallisticDemo()
+{
+	if (m_FakeSpringForce)
+		delete m_FakeSpringForce;
+}
+
 /**
  * Called by the common demo framework to create an application
  * object (with new) and return a pointer.
@@ -220,11 +270,4 @@ void BallisticDemo::key(unsigned char key)
 Application* getApplication()
 {
     return new BallisticDemo();
-}
-
-// Destructor
-BallisticDemo::~BallisticDemo()
-{
-	if (m_FakeSpringForce)
-		delete m_FakeSpringForce;
 }
