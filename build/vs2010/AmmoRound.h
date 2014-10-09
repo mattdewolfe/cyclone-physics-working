@@ -1,6 +1,7 @@
 #ifndef AMMO_ROUND_H
 #define AMMO_ROUND_H
 
+#include <iostream>
 #include <gl/glut.h>
 #include <cyclone/cyclone.h>
 
@@ -36,7 +37,7 @@ public:
         // Get the OpenGL transformation
         GLfloat mat[16];
         body->getGLTransform(mat);
-
+		std::printf("%f, %f, %f \n", body->getPosition().x, body->getPosition().y, body->getPosition().z);
         glPushMatrix();
         glMultMatrixf(mat);
 		glColor3f(1.0f, 0, 0);

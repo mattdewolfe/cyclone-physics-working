@@ -65,6 +65,9 @@ public:
     /** Build the contacts for the current situation. */
     virtual void generateContacts();
 
+	/** Sets up the rendering. */
+    virtual void initGraphics();
+    
     /** Processes the objects in the simulation forward in time. */
     virtual void updateObjects(cyclone::real duration);
 
@@ -79,19 +82,12 @@ public:
 };
 
 // Method definitions
-BallisticDemo::BallisticDemo()
-: currentShotType(LASER)
+BallisticDemo::BallisticDemo() 
+: RigidBodyApplication(),
+currentShotType(LASER)
 {
-	// GAME3002 - Create some gravity
-	m_GravityForce.SetGravity(cyclone::Vector3::GRAVITY);
-	// GAME3002 - Create a fake spring force (TEMPORARILY zero'd out)
-	m_FakeSpringForce = new cyclone::ParticleFakeSpring(new cyclone::Vector3(0.0, 0.0f, 0.0f), 0.0f, 0.0f);
 
-    // Make all shots unused
-    for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
-    {
-        shot->type = UNUSED;
-    }
+	pauseSimulation = false;
 
 	// Game3002 - Create our launchers
 	for (int i = 0; i < NUM_LAUNCHERS; i++)
@@ -99,6 +95,22 @@ BallisticDemo::BallisticDemo()
 		launchers[i] = new Launcher(5.0f, 1.0f, 1.0f, 80.0f*i);
 		launchers[i]->SetColour(cyclone::Vector3(0.0f, 0.75f*i, 0.25f));
 	}
+
+	// Resets all ammo positions
+    reset();
+}
+
+void BallisticDemo::initGraphics()
+{
+    GLfloat lightAmbient[] = {0.8f,0.8f,0.8f,1.0f};
+    GLfloat lightDiffuse[] = {0.9f,0.95f,1.0f,1.0f};
+
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+
+    glEnable(GL_LIGHT0);
+
+    Application::initGraphics();
 }
 
 void BallisticDemo::generateContacts()
@@ -188,12 +200,13 @@ void BallisticDemo::updateObjects(cyclone::real duration)
             }
         }
     }
-
-    Application::update();
 }
 
 void BallisticDemo::display()
 {
+
+	const static GLfloat lightPosition[] = {-1,1,0,0};
+
     // Clear the viewport and set the camera direction
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -214,7 +227,7 @@ void BallisticDemo::display()
     }
     glEnd();
 
-    // Render each particle in turn
+    // Render each shot in turn
     for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
     {
         if (shot->type != UNUSED)
@@ -230,10 +243,10 @@ void BallisticDemo::display()
     // Render the name of the current shot type
     switch(currentShotType)
     {
-    case PISTOL: renderText(10.0f, 10.0f, "Current Ammo: Pistol"); break;
-    case ARTILLERY: renderText(10.0f, 10.0f, "Current Ammo: Artillery"); break;
-    case FIREBALL: renderText(10.0f, 10.0f, "Current Ammo: Fireball"); break;
-    case LASER: renderText(10.0f, 10.0f, "Current Ammo: Laser"); break;
+		case PISTOL: renderText(10.0f, 10.0f, "Current Ammo: Pistol"); break;
+		case ARTILLERY: renderText(10.0f, 10.0f, "Current Ammo: Artillery"); break;
+		case FIREBALL: renderText(10.0f, 10.0f, "Current Ammo: Fireball"); break;
+		case LASER: renderText(10.0f, 10.0f, "Current Ammo: Laser"); break;
     }
 }
 
@@ -254,13 +267,10 @@ void BallisticDemo::key(unsigned char key)
     }
 }
 
-
-
 // Destructor
 BallisticDemo::~BallisticDemo()
 {
-	if (m_FakeSpringForce)
-		delete m_FakeSpringForce;
+
 }
 
 /**
