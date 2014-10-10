@@ -3,14 +3,17 @@
 
 #include <gl/glut.h>
 #include <cyclone/cyclone.h>
+#include "../src/demos/timing.h"
 
 class Launcher : public cyclone::CollisionSphere
 {
 private:
 	// Color of launcher, drawn with openGL RGB (range 0.0f - 1.0f) 
 	cyclone::Vector3 colour;
-	// Store the shot power from last shot to display to player
-	float shotPower;
+	// Controls force for the next shot
+	int shotPower;
+	// Controls angle of force when shot is fired
+	int shotAngle;
 	// Called inside constructor to setup physics collider on launcher
 	void SetupCollider();
 	// Store halfsize value, used for inertia
@@ -28,6 +31,10 @@ public:
 	// Get/Set shot power
 	void SetPower(const float _pow) { shotPower = _pow; }
 	float GetPower() const { return shotPower; }
+
+	// Get/Set shot power
+	void SetAngle(const float _pow) { shotAngle = _pow; }
+	float GetAngle() const { return shotAngle; }
 
 	// Draw the visual representation of our launcher
 	void Draw();

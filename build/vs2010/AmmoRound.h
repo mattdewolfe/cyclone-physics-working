@@ -4,6 +4,7 @@
 #include <iostream>
 #include <gl/glut.h>
 #include <cyclone/cyclone.h>
+#include "../src/demos/timing.h"
 
 enum ShotType
 {
@@ -89,7 +90,7 @@ public:
         }
 
         body->setCanSleep(false);
-        body->setAwake();
+        body->setAwake(true);
 
         cyclone::Matrix3 tensor;
         cyclone::real coeff = 0.4f*body->getMass()*radius*radius;

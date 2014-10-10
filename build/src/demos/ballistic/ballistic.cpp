@@ -10,6 +10,7 @@
  * software licence.
  */
 
+#include <string>
 #include <gl/glut.h>
 #include <cyclone/cyclone.h>
 #include "../app.h"
@@ -20,6 +21,9 @@
 #include <stdio.h>
 
 #define NUM_LAUNCHERS 2
+#define MAX_SHOT_POWER 10
+#define MIN_SHOT_ANGLE 10
+#define MAX_SHOT_ANGLE 85
 /**
  * The main demo class definition.
  */
@@ -31,7 +35,7 @@ class BallisticDemo : public RigidBodyApplication
      * Holds the maximum number of  rounds that can be
      * fired.
      */
-    const static unsigned ammoRounds = 16;
+    const static unsigned ammoRounds = 32;
 
     /** Holds the particle data. */
     AmmoRound ammo[ammoRounds];
@@ -42,14 +46,11 @@ class BallisticDemo : public RigidBodyApplication
 	// GAME3002 - Holds all the launchers on the screen
 	Launcher *launchers[NUM_LAUNCHERS];
 
+	// GAME3002 - Used to access array of launchers for the current player/launcher
+	int currentLauncher; 
+
     /** Dispatches a round. */
     void fire();
-	// GAME3002 - Stuff we added, force registry for tracking all forces
-	cyclone::ParticleForceRegistry m_ParticleForceRegistry;
-	// Gravity - should be added to shots we want effected by gravity
-	cyclone::ParticleGravity m_GravityForce;
-	// Spring force - added to artillery shot when fired
-	cyclone::ParticleFakeSpring *m_FakeSpringForce;
 
 public:
     /** Creates a new demo object. */
@@ -79,6 +80,10 @@ public:
 
     /** Handle a keypress. */
    virtual void key(unsigned char key);
+
+   // GAME3002 - Functions for change in shot power and angle
+   void ChangePower(int _change);
+   void ChangeAngle(int _change);
 };
 
 // Method definitions
@@ -87,15 +92,14 @@ BallisticDemo::BallisticDemo()
 currentShotType(LASER)
 {
 
-	pauseSimulation = false;
-
 	// Game3002 - Create our launchers
 	for (int i = 0; i < NUM_LAUNCHERS; i++)
 	{
-		launchers[i] = new Launcher(5.0f, 1.0f, 1.0f, 80.0f*i);
+		launchers[i] = new Launcher(5.0f, 1.0f, 1.5f, 80.0f*i);
 		launchers[i]->SetColour(cyclone::Vector3(0.0f, 0.75f*i, 0.25f));
 	}
-
+	currentLauncher = 0;
+	pauseSimulation = false;
 	// Resets all ammo positions
     reset();
 }
@@ -126,16 +130,27 @@ void BallisticDemo::generateContacts()
     cData.restitution = (cyclone::real)0.1;
     cData.tolerance = (cyclone::real)0.1;
 
-    // Check for collisions with each shot
-    for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
+    // Check ground plane collisions
+    for (int i = 0; i < NUM_LAUNCHERS; i++)
     {
-        if (shot->type != UNUSED)
+        if (!cData.hasMoreContacts()) return;
+			cyclone::CollisionDetector::sphereAndHalfSpace(*launchers[i], plane, &cData);
+
+        // Check for collisions with each shot
+        for (AmmoRound *shot = ammo; shot < ammo+ammoRounds; shot++)
         {
-            if (!cData.hasMoreContacts()) return;
-               shot->type = UNUSED;            
-        }
-    }
-    // NB We aren't checking box-box collisions.
+            if (shot->type != UNUSED)
+            {
+                if (!cData.hasMoreContacts()) return;
+
+                // When we get a collision, remove the shot
+                if (cyclone::CollisionDetector::sphereAndSphere(*launchers[i], *shot, &cData))
+                {
+                    shot->type = UNUSED;
+                }
+			}
+		}
+	}
 }
 
 
@@ -156,10 +171,19 @@ void BallisticDemo::fire()
     // If we didn't find a round, then exit - we can't fire.
     if (shot >= ammo+ammoRounds) return;
 
-    // Else, setup the shot
-    shot->setState(currentShotType, 
-		(launchers[0]->body->getPosition() + cyclone::Vector3(0.0, 0.0, 2.0f))
-		);
+    // Else, setup the shot with a vector 3 to offset it from it's orientation
+	cyclone::Vector3 direction;
+	if (currentLauncher == 0)
+	{
+		direction = cyclone::Vector3(0, 0, 2.0f);
+	}
+	else
+	{
+		direction = cyclone::Vector3(0, 0, -2.0f);
+	}
+
+
+    shot->setState( currentShotType, (launchers[currentLauncher]->body->getPosition() + direction) );
 
 }
 
@@ -190,7 +214,7 @@ void BallisticDemo::updateObjects(cyclone::real duration)
 			shot->calculateInternals();
 
             // Check if the particle is now invalid
-            if (shot->body->getPosition().y < -1.0f ||
+            if (shot->body->getPosition().x < 0.0f ||
                 shot->startTime+5000 < TimingData::get().lastFrameTimestamp ||
                 shot->body->getPosition().z > 200.0f)
             {
@@ -248,6 +272,9 @@ void BallisticDemo::display()
 		case FIREBALL: renderText(10.0f, 10.0f, "Current Ammo: Fireball"); break;
 		case LASER: renderText(10.0f, 10.0f, "Current Ammo: Laser"); break;
     }
+	// Render the shot power and angle
+	renderText(190.0f, 22.0f, "Current Power: ");
+	renderText(190.0f, 10.0f, "Current Angle: ");
 }
 
 void BallisticDemo::mouse(int button, int state, int x, int y)
@@ -260,11 +287,47 @@ void BallisticDemo::key(unsigned char key)
 {
     switch(key)
     {
-    case '1': currentShotType = PISTOL; break;
-    case '2': currentShotType = ARTILLERY; break;
-    case '3': currentShotType = FIREBALL; break;
-    case '4': currentShotType = LASER; break;
+		case '1': currentShotType = PISTOL; break;
+		case '2': currentShotType = ARTILLERY; break;
+		case '3': currentShotType = FIREBALL; break;
+		case '4': currentShotType = LASER; break;
+		case 'w': ChangePower(1); break;
+		case 'W': ChangePower(1); break;
+		case 's': ChangePower(-1); break;
+		case 'S': ChangePower(-1); break;
+		case 'a': ChangeAngle(1); break;
+		case 'A': ChangeAngle(1); break;
+		case 'd': ChangeAngle(-1); break;
+		case 'D': ChangeAngle(-1); break;
     }
+}
+
+void BallisticDemo::ChangePower(int _change)
+{
+	// Pull the power value of the current launcher
+	int tempPower = launchers[currentLauncher]->GetPower();
+	tempPower += _change;
+	// Ensure value is within bounds for launcher power
+	if (tempPower < 1)
+		tempPower = 1;
+	else if (tempPower > MAX_SHOT_POWER)
+		tempPower = MAX_SHOT_POWER;
+	// Pass that value back into the current launcher
+	launchers[currentLauncher]->SetPower(tempPower);
+}
+
+void BallisticDemo::ChangeAngle(int _change)
+{
+	// Pull the power value of the current launcher
+	int tempAngle = launchers[currentLauncher]->GetAngle();
+	tempAngle += _change;
+	// Ensure value is within bounds for launcher power
+	if (tempAngle < MIN_SHOT_ANGLE)
+		tempAngle = MIN_SHOT_ANGLE;
+	else if (tempAngle > MAX_SHOT_ANGLE)
+		tempAngle = MAX_SHOT_ANGLE;
+	// Pass that value back into the current launcher
+	launchers[currentLauncher]->SetAngle(tempAngle);
 }
 
 // Destructor
