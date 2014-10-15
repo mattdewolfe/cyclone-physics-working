@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>demo_ballistic</ProjectName>
+    <ProjectName>template</ProjectName>
     <ProjectGuid>{8E2C0A8C-A817-4919-AEA0-565B97423BED}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -41,7 +41,7 @@
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\tmp\ballistic\Debug\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\tmp\template\Debug\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\tmp\ballistic\</IntDir>
@@ -52,7 +52,7 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ballistic_d</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">template</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ballistic</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -109,20 +109,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\demos\ballistic\ballistic.cpp" />
     <ClCompile Include="..\src\demos\app.cpp" />
     <ClCompile Include="..\src\demos\main.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\src\demos\template\template.cpp" />
     <ClCompile Include="..\src\demos\timing.cpp" />
-    <ClCompile Include="Launcher.cpp" />
+    <ClCompile Include="BasicSphere.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\demos\app.h" />
     <ClInclude Include="..\src\demos\timing.h" />
-    <ClInclude Include="AmmoRound.h" />
-    <ClInclude Include="Launcher.h" />
+    <ClInclude Include="BasicSphere.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
