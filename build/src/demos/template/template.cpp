@@ -26,7 +26,7 @@ public:
 	// X width, Y width, and Z position
 	cyclone::Vector3 groundPlane;
 
-	const static int numBoxes = 3;
+	const static int numBoxes = 6;
 	/** Holds the box data. */
     Box boxData[numBoxes];
 
@@ -66,7 +66,7 @@ public:
 Template::Template() 
 : RigidBodyApplication()
 {
-	groundPlane = cyclone::Vector3(100.0f, 7.0f, 0.0f);
+	groundPlane = cyclone::Vector3(200.0f, 7.0f, 0.0f);
 	// Resets all positions
     reset();
 }
@@ -112,14 +112,13 @@ const char* Template::getTitle()
 void Template::reset()
 {
 	testSphere = new BasicSphere(2, 0.0f, 15.0f, 1.0f);
-	
 
 	// Put 3 boxes into the scene
 	cyclone::real zVal = 15.0f;
 	for (int i = 0; i < numBoxes; i++)
 	{
 		boxData[i].setState(zVal);
-		zVal += 10.0f;
+		zVal += 20.0f;
 	}
 }
 
@@ -145,7 +144,8 @@ void Template::display()
 	// Clear the viewport and set the camera direction
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    gluLookAt(-40.0, 10.0, 10.0,  0.0, 10.0, 10.0,  0.0, 1.0, 0.0);
+	cyclone::Vector3 eyeTarget = testSphere->body->getPosition();
+    gluLookAt(-30.0, 10.0, eyeTarget.z-2, eyeTarget.x, eyeTarget.y, eyeTarget.z,  0.0, 1.0, 0.0);
 
 	// Render the sphere
 	testSphere->Render();
@@ -185,13 +185,16 @@ void Template::key(unsigned char key)
 		   reset();
 		   break;
 	   case 'w':
-		   testSphere->MoveBody(0.0, 1.0f);
+		   testSphere->MoveBody(0.0, 10.0f);
 		   break;
 	   case 'a':
-		   testSphere->MoveBody(-1.0f, 0.0);
+		   testSphere->MoveBody(-0.75f, 0.0);
 		   break;
 	   case 'd':
-		   testSphere->MoveBody(1.0f, 0.0);
+		   testSphere->MoveBody(0.75f, 0.0);
+		   break;
+	   case 'b':
+		   testSphere->LiftOff();
 		   break;
    }
 }
@@ -222,10 +225,14 @@ void Template::renderInterface()
 
 	// Ouptut text for user
 	glColor3f(0.5f, 0.0, 0.0);
+	renderText(10.0f, 46.0f, "Press W to ascend");
+	renderText(360.0f, 10.0f, "Press B to blast the ball into high orbit (one use)");
+	renderText(10.0f, 34.0f, "Press A to move left - Press D to move right");
+	renderText(10.0f, 22.0f, "Press R to reset positions");
 	if (pauseSimulation == true)
-		renderText(10.0f, 24.0f, "Simulation is paused - Press S to unpause");
+		renderText(10.0f, 10.0f, "Simulation is paused - Press S to unpause");
 	else
-		renderText(10.0f, 24.0f, " Simulation is running - Press S to pause");
+		renderText(10.0f, 10.0f, "!Simulation is running - Press S to pause");
 }
 // Destructor
 Template::~Template()

@@ -19,14 +19,24 @@ private:
 	void SetupCollider();
 	// Store halfsize value, used for inertia
 	cyclone::Vector3 halfSize;
-
+	// Clamp values for speed
+	float zClamp, yClamp, xClamp;
+	// Has been set into orbit
+	bool isInOrbit;
+	
 public:
 	BasicSphere(float _radius, float _x = 0, float _y = 0, float _z = 0);
 	BasicSphere(float _radius, cyclone::Vector3 _pos);
 	~BasicSphere(void);
 
+	// Apply a massive one time verticle force to ball
+	void LiftOff();
+
 	// Apply forces to this body
 	void MoveBody(float z, float y);
+
+	// Set speed clamps for our sphere
+	void SetZYSpeedClamps(float z, float y);
 
 	// Get/Set launcher colour
 	void SetColour(const cyclone::Vector3& _col) { colour = _col; }

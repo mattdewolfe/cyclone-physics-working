@@ -1,6 +1,10 @@
 #include "BasicSphere.h"
 
-BasicSphere::BasicSphere(float _radius, float _x, float _y, float _z)
+BasicSphere::BasicSphere(float _radius, float _x, float _y, float _z) 
+	: zClamp(15.0f), 
+	yClamp(0.1f), 
+	xClamp(0),
+	isInOrbit(false)
 {
 	body = new cyclone::RigidBody();
 	body->setPosition(_x, _y, _z);
@@ -9,6 +13,10 @@ BasicSphere::BasicSphere(float _radius, float _x, float _y, float _z)
 	SetupCollider();
 }
 BasicSphere::BasicSphere(float _radius, cyclone::Vector3 _pos)
+	: zClamp(15.0f), 
+	yClamp(0.1f),
+	xClamp(0),
+	isInOrbit(false)
 {
 	body = new cyclone::RigidBody();
 	body->setPosition(_pos);
@@ -17,10 +25,22 @@ BasicSphere::BasicSphere(float _radius, cyclone::Vector3 _pos)
 	SetupCollider();
 } 
 
-BasicSphere::~BasicSphere(void)
+// Set limitations on z and y acceleration
+// Currently sphere never moves on x plane
+void BasicSphere::SetZYSpeedClamps(float z, float y)
 {
-	delete body;
-	body = NULL;
+	zClamp = z;
+	yClamp = y;
+}
+
+// Sends ball into high orbit
+void BasicSphere::LiftOff()
+{
+	if (isInOrbit == false)
+	{
+		isInOrbit = true;
+		body->setVelocity(0.0, 400.0f, 0.0);
+	}
 }
 
 // Sets up collision body
@@ -53,8 +73,31 @@ void BasicSphere::SetupCollider()
 
 void BasicSphere::MoveBody(float z, float y)
 {
-	cyclone::Vector3 vel = cyclone::Vector3(0.0, y, z);
-	body->addVelocity(vel);
+	cyclone::Vector3 vel = body->getVelocity();
+	// Check y speed to ensure body is on ground
+	// if it is not we will not change any speed values
+	if (vel.y < yClamp && vel.y > -yClamp)
+	{
+		vel.y += y;
+
+		// Check if desired direction is opposite of current direction
+		// If so increase the force to get a faster turn around time
+		if (z < 0 && vel.z > 0)
+		{
+			vel.z += 2*z;
+		}
+		else if (z > 0 && vel.z < 0)
+		{
+			vel.z += 2*z;
+		}
+		// Make sure velocity is within bounds
+		else if (!(vel.z > zClamp) && !(vel.z < -zClamp))
+		{
+			vel.z += z;
+		}
+		// Finally apply new velocity value to the body
+		body->setVelocity(vel);
+	}
 }
 
 // Visuals for launcher
@@ -67,4 +110,10 @@ void BasicSphere::Render ()
     glTranslatef(body->getPosition().x, body->getPosition().y, body->getPosition().z);
     glutSolidSphere(radius, 25, 25);
     glPopMatrix();
+}
+
+BasicSphere::~BasicSphere(void)
+{
+	delete body;
+	body = NULL;
 }

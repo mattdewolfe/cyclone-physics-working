@@ -133,22 +133,22 @@
     <ClCompile Include="..\src\world.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\cyclone\body.h" />
-    <ClInclude Include="..\include\cyclone\collide_coarse.h" />
-    <ClInclude Include="..\include\cyclone\collide_fine.h" />
-    <ClInclude Include="..\include\cyclone\contacts.h" />
-    <ClInclude Include="..\include\cyclone\core.h" />
-    <ClInclude Include="..\include\cyclone\cyclone.h" />
-    <ClInclude Include="..\include\cyclone\fgen.h" />
-    <ClInclude Include="..\include\cyclone\joints.h" />
-    <ClInclude Include="..\include\cyclone\particle.h" />
-    <ClInclude Include="..\include\cyclone\pcontacts.h" />
-    <ClInclude Include="..\include\cyclone\pfgen.h" />
-    <ClInclude Include="..\include\cyclone\plinks.h" />
-    <ClInclude Include="..\include\cyclone\precision.h" />
-    <ClInclude Include="..\include\cyclone\pworld.h" />
-    <ClInclude Include="..\include\cyclone\random.h" />
-    <ClInclude Include="..\include\cyclone\world.h" />
+    <ClInclude Include="..\..\include\cyclone\body.h" />
+    <ClInclude Include="..\..\include\cyclone\collide_coarse.h" />
+    <ClInclude Include="..\..\include\cyclone\collide_fine.h" />
+    <ClInclude Include="..\..\include\cyclone\contacts.h" />
+    <ClInclude Include="..\..\include\cyclone\core.h" />
+    <ClInclude Include="..\..\include\cyclone\cyclone.h" />
+    <ClInclude Include="..\..\include\cyclone\fgen.h" />
+    <ClInclude Include="..\..\include\cyclone\joints.h" />
+    <ClInclude Include="..\..\include\cyclone\particle.h" />
+    <ClInclude Include="..\..\include\cyclone\pcontacts.h" />
+    <ClInclude Include="..\..\include\cyclone\pfgen.h" />
+    <ClInclude Include="..\..\include\cyclone\plinks.h" />
+    <ClInclude Include="..\..\include\cyclone\precision.h" />
+    <ClInclude Include="..\..\include\cyclone\pworld.h" />
+    <ClInclude Include="..\..\include\cyclone\random.h" />
+    <ClInclude Include="..\..\include\cyclone\world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

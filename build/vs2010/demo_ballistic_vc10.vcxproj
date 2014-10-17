@@ -122,6 +122,7 @@
     <ClInclude Include="..\src\demos\app.h" />
     <ClInclude Include="..\src\demos\timing.h" />
     <ClInclude Include="BasicSphere.h" />
+    <ClInclude Include="Box.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
