@@ -57,8 +57,7 @@ public:
 Template::Template() 
 : RigidBodyApplication()
 {
-	// Simulation paused until bodies exist, otherwise engine will throw a memory error
-	pauseSimulation = true;
+	pauseSimulation = false;
 
 	testSphere = new BasicSphere(3, 1.0f, 1.0f, 1.0f);
 	// Resets all ammo positions
@@ -74,7 +73,11 @@ void Template::initGraphics()
 // Check for collisions between rigid bodies
 void Template::generateContacts()
 {
-
+	 // Set up the collision data structure
+    cData.reset(maxContacts);
+    cData.friction = (cyclone::real)0.9;
+    cData.restitution = (cyclone::real)0.1;
+    cData.tolerance = (cyclone::real)0.1;
 }
 
 const char* Template::getTitle()

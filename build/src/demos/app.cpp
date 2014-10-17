@@ -227,7 +227,7 @@ void RigidBodyApplication::update()
     // Perform the contact generation
     generateContacts();
 
-    // Resolve detected contacts
+  // Resolve detected contacts
     resolver.resolveContacts(
         cData.contactArray,
         cData.contactCount,
