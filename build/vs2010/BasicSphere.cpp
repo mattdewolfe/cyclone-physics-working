@@ -5,7 +5,7 @@ BasicSphere::BasicSphere(float _radius, float _x, float _y, float _z)
 	body = new cyclone::RigidBody();
 	body->setPosition(_x, _y, _z);
 	radius = _radius;
-	colour = cyclone::Vector3(0.0, 0.0, 0.0);
+	colour = cyclone::Vector3(0.3, 0.0, 0.0);
 	SetupCollider();
 }
 BasicSphere::BasicSphere(float _radius, cyclone::Vector3 _pos)
@@ -13,7 +13,7 @@ BasicSphere::BasicSphere(float _radius, cyclone::Vector3 _pos)
 	body = new cyclone::RigidBody();
 	body->setPosition(_pos);
 	radius = _radius;
-	colour = cyclone::Vector3(0.0, 0.0, 0.0);
+	colour = cyclone::Vector3(0.3, 0.0, 0.0);
 	SetupCollider();
 } 
 
@@ -51,6 +51,12 @@ void BasicSphere::SetupCollider()
     calculateInternals();
 }
 
+void BasicSphere::MoveBody(float z, float y)
+{
+	cyclone::Vector3 vel = cyclone::Vector3(0.0, y, z);
+	body->addVelocity(vel);
+}
+
 // Visuals for launcher
 void BasicSphere::Render ()
 {
@@ -58,11 +64,7 @@ void BasicSphere::Render ()
     // onto the ground plane.
     glColor3f(colour.x, colour.y, colour.z);
     glPushMatrix();
-    //glTranslatef(body->getPosition().x, body->getPosition().y, body->getPosition().z);
-    glutSolidSphere(1.5f, 25, 25);
-    glTranslatef(0.0f, -1.5f, 0.0f);
-    glColor3f(0.75f, 0.75f, 0.75f);
-    glScalef(1.0f, 0.1f, 1.0f);
-    glutSolidSphere(0.1f, 5, 5);
+    glTranslatef(body->getPosition().x, body->getPosition().y, body->getPosition().z);
+    glutSolidSphere(radius, 25, 25);
     glPopMatrix();
 }

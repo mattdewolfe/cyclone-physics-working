@@ -3,6 +3,7 @@
 
 #include <gl/glut.h>
 #include <cyclone/cyclone.h>
+
 #include "../src/demos/timing.h"
 
 class BasicSphere : public cyclone::CollisionSphere
@@ -23,6 +24,9 @@ public:
 	BasicSphere(float _radius, float _x = 0, float _y = 0, float _z = 0);
 	BasicSphere(float _radius, cyclone::Vector3 _pos);
 	~BasicSphere(void);
+
+	// Apply forces to this body
+	void MoveBody(float z, float y);
 
 	// Get/Set launcher colour
 	void SetColour(const cyclone::Vector3& _col) { colour = _col; }
